@@ -1,0 +1,26 @@
+name: Github Actions for terraform
+
+on:
+    pull_request:
+        branches: [main]
+
+jobs:
+    terraform:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code for all the github actions
+              uses: actions/checkout@v3
+
+            - name: Terraform setup
+              uses: hashicorp/setup-terraform@v2
+              with:
+                  terraform_version: "1.10.5"
+
+            - name: Checking format for terraform
+              run: terraform fmt -check -recursive
+
+            - name: Initializing terraform
+              run: terraform init -backend=false
+
+            - name: Validating terraform
+              run: terraform validate
