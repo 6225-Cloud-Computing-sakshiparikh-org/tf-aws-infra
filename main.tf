@@ -57,7 +57,7 @@ resource "aws_subnet" "public" {
 resource "aws_subnet" "private" {
   count = length(var.private_subnets)
 
-  vpc_id                  = aws_vpc.main.id
+  vpc_id                  = aws_vpc.main.pad
   cidr_block              = var.private_subnets[count.index]
   map_public_ip_on_launch = false
   availability_zone       = var.availability_zones[count.index]
