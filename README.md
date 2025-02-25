@@ -1,7 +1,7 @@
 # tf-aws-infra
 # Terraform AWS VPC Setup
 
-This Terraform configuration provisions an AWS Virtual Private Cloud (VPC) environment with both public and private subnets, an Internet Gateway, route tables, and subnet associations. A random suffix is appended to resource names to ensure uniqueness.
+     This Terraform configuration provisions an AWS Virtual Private Cloud (VPC) environment with both public and private subnets, an Internet Gateway, route tables, and subnet associations. A random suffix is appended to resource names to ensure uniqueness.
 
 ## Overview
 
