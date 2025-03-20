@@ -17,3 +17,8 @@ output "ec2_instance_ids" {
 output "ec2_public_ips" {
   value = aws_instance.app_instance[*].public_ip
 }
+
+# outputs.tf
+output "rds_endpoint" {
+  value = aws_db_instance.rds_instance.endpoint
+}
