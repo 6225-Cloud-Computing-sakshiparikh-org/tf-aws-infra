@@ -93,3 +93,25 @@ variable "key_name" {
   description = "Name of the SSH key pair"
   type        = string
 }
+
+variable "ami_id" {
+  description = "The AMI ID for EC2 instances"
+  type        = string
+}
+
+variable "db_username" {
+  description = "RDS master username"
+  type        = string
+}
+
+variable "db_password" {
+  description = "RDS master password"
+  type        = string
+  sensitive   = true
+}
+
+variable "db_name" {
+  description = "Database name"
+  type        = string
+  default     = "csye6225"
+}
