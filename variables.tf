@@ -115,3 +115,34 @@ variable "db_name" {
   type        = string
   default     = "csye6225"
 }
+
+variable "my_ip_cidr" {
+  description = "Your IP address in CIDR notation for SSH access"
+  type        = string
+  default     = "0.0.0.0/0" # Replace with your actual IP for security
+}
+
+# Add these variables to your existing variables.tf file
+
+variable "domain_name" {
+  description = "Your domain name (e.g., example.com)"
+  type        = string
+}
+
+variable "asg_min_size" {
+  description = "Minimum size of the Auto Scaling Group"
+  type        = number
+  default     = 3
+}
+
+variable "asg_max_size" {
+  description = "Maximum size of the Auto Scaling Group"
+  type        = number
+  default     = 5
+}
+
+variable "asg_desired_capacity" {
+  description = "Desired capacity of the Auto Scaling Group"
+  type        = number
+  default     = 3
+}

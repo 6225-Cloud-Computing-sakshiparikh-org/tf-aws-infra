@@ -13,6 +13,33 @@ resource "aws_security_group" "app_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Application port - only allow traffic from the load balancer
+  ingress {
+    description     = "Application port"
+    from_port       = var.app_port
+    to_port         = var.app_port
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lb_sg[count.index].id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.network_name}-App-SG-${count.index + 1}"
+  }
+}
+
+resource "aws_security_group" "lb_sg" {
+  count       = var.vpc_count
+  name        = "${var.network_name}-lb-sg-${count.index + 1}"
+  description = "Security group for load balancer"
+  vpc_id      = aws_vpc.main[count.index].id
+
   # Standard web ports
   ingress {
     description = "HTTP"
@@ -30,15 +57,6 @@ resource "aws_security_group" "app_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Application port
-  ingress {
-    description = "App port"
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -47,7 +65,7 @@ resource "aws_security_group" "app_sg" {
   }
 
   tags = {
-    Name = "${var.network_name}-App-SG-${count.index + 1}"
+    Name = "${var.network_name}-LB-SG-${count.index + 1}"
   }
 }
 
