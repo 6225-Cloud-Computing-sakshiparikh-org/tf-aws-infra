@@ -321,7 +321,6 @@ resource "aws_kms_key" "secrets_key" {
   }
 }
 
-# KMS aliases for easier reference
 resource "aws_kms_alias" "ec2_key_alias" {
   name          = "alias/${var.network_name}-ec2-key"
   target_key_id = aws_kms_key.ec2_key.key_id

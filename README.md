@@ -1,99 +1,140 @@
-# tf-aws-infra
-# Terraform AWS VPC Setup
+# AWS Infrastructure with Terraform
 
-This Terraform configuration provisions an AWS Virtual Private Cloud (VPC) environment with both public and private subnets, an Internet Gateway, route tables, and subnet associations. A random suffix is appended to resource names to ensure uniqueness.
+This Terraform project sets up a complete AWS infrastructure including VPC, EC2 instances with Auto Scaling, RDS, Route53, and more.
 
-## Overview
+## Infrastructure Components
 
-The configuration sets up the following resources:
+### Networking
+- **VPC** with configurable CIDR blocks
+- **Public and Private Subnets** across multiple availability zones
+- **Internet Gateway** for public internet access
+- **Route Tables** for public and private subnets
+- **Security Groups** for application and database instances
 
-- **VPC:**  
-  A VPC with DNS support enabled.
-  
-- **Random Suffix:**  
-  Generates a unique 4-character numeric suffix for naming resources.
+### Compute
+- **Auto Scaling Group** with configurable capacity
+- **Launch Template** with user data configuration
+- **Application Load Balancer** with HTTP/HTTPS support
+- **EC2 Instances** with CloudWatch agent configuration
 
-- **Internet Gateway:**  
-  An Internet Gateway attached to the VPC to allow internet connectivity.
+### Database
+- **RDS Instance** (MySQL 8.0)
+- **DB Parameter Group** with UTF-8 configuration
+- **DB Subnet Group** in private subnets
+- **Encrypted Storage** using KMS
 
-- **Subnets:**  
-  - **Public Subnets:**  
-    Configured to assign public IPs on launch.
-  - **Private Subnets:**  
-    No public IP assignment.
+### Storage
+- **S3 Bucket** with versioning and encryption
+- **KMS Keys** for encryption
+- **Server-side encryption** configuration
 
-- **Route Tables:**  
-  - A public route table with a default route to the Internet Gateway.
-  - A private route table for private subnets.
+### DNS & SSL
+- **Route53 Records** for domain management
+- **ACM Certificate** for HTTPS (in dev environment)
+- **DNS Validation** for SSL certificates
 
-- **Associations:**  
-  Associates public subnets with the public route table and private subnets with the private route table.
+### Security
+- **IAM Roles and Policies** for EC2 instances
+- **Security Groups** with restricted access
+- **Secrets Manager** for database credentials
+- **KMS Keys** for encryption
 
 ## Prerequisites
 
-- [Terraform](https://www.terraform.io/downloads.html) (version 1.x recommended)
-- An AWS account with proper credentials.
-- AWS CLI configured with a profile if using the `aws_profile` variable.
+1. **AWS CLI** installed and configured
+2. **Terraform** (version ~> 1.0)
+3. AWS account with appropriate permissions
+4. Domain name (for Route53 configuration)
+
 
 ## Usage
 
-1. **Clone the Repository:**
-
+1. **Initialize Terraform**
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
-## Configure Variables
+   terraform init
+   ```
 
-Create a `terraform.tfvars` file (or use another method) to provide the following variables:
+2. **Format and Validate**
+   ```bash
+   terraform fmt
+   terraform validate
+   ```
 
-- **aws_region:** AWS region (e.g., `us-east-1`).
-- **aws_profile:** AWS CLI profile name.
-- **vpc_cidr:** The CIDR block for the VPC (e.g., `10.0.0.0/16`).
-- **vpc_name:** Base name for the VPC and related resources.
-- **public_subnets:** List of CIDR blocks for public subnets (e.g., `["10.0.1.0/24", "10.0.2.0/24"]`).
-- **private_subnets:** List of CIDR blocks for private subnets (e.g., `["10.0.3.0/24", "10.0.4.0/24"]`).
-- **availability_zones:** List of availability zones corresponding to your subnets (e.g., `["us-east-1a", "us-east-1b"]`).
+3. **Plan the Infrastructure**
+   ```bash
+   terraform plan
+   ```
 
-## Initialize Terraform
+4. **Apply the Configuration**
+   ```bash
+   terraform apply
+   ```
 
-Initialize the configuration and download required providers:
+5. **Destroy Infrastructure**
+   ```bash
+   terraform destroy
+   ```
 
-```bash
-terraform init 
-```
+## Security Features
 
-## Apply the Configuration
+- Database passwords are automatically generated and stored in AWS Secrets Manager
+- All sensitive data is encrypted using KMS
+- S3 bucket has versioning and encryption enabled
+- Security groups restrict access to necessary ports only
+- Private subnets for database instances
+- SSL/TLS encryption for HTTPS traffic
 
-Create the resources by applying the configuration:
+## Monitoring and Logging
 
-```bash
-terraform apply
-```
+- CloudWatch agent configuration for metrics and logs
+- Custom metrics namespace for application monitoring
+- Log retention policies
+- Auto Scaling metrics and alarms
 
-## Destroy Resources 
+## Important Notes
 
-If you need to remove all resources at any point, run the following command:
-
-```bash
-terraform destroy
-```
-
-## File Structure
-
--**main.tf:** Contains the Terraform configuration for the AWS resources.
-
--**variables.tf:** Define and document the input variables.
-
--**outputs.tf:** Specify outputs to display resource information after creation.
-
+1. The infrastructure is designed for both development and production environments
+2. SSL certificates are automatically provisioned for dev environment
+3. Database backups and maintenance windows are configurable
+4. Auto Scaling group ensures high availability
+5. All resources include proper tagging for cost allocation
 
 ## Resource Naming
 
-The resource names are generated using a base name and a random suffix. Adjust the naming pattern as needed to suit your environment.
+Resources are named using the following pattern:
+- Base name from `network_name` variable
+- Resource type identifier
+- Random suffix for uniqueness (where applicable)
 
-## Network Design
+## Outputs
 
-Modify CIDR blocks, subnet counts, and availability zones in your variable definitions to match your network requirements.
+The following outputs are available after successful deployment:
+- VPC IDs
+- Public and Private Subnet IDs
+- RDS Endpoint
+- Load Balancer DNS Name
+- Auto Scaling Group Name
+
+## File Structure
+
+```
+.
+├── acm.tf                    # SSL/TLS certificate configuration
+├── auto-scaling-group.tf     # Auto Scaling Group configuration
+├── auto-load-balancer.tf     # Load Balancer configuration
+├── internetgateway.tf        # Internet Gateway configuration
+├── provider.tf               # AWS provider configuration
+├── rds.tf                    # RDS instance configuration
+├── rds-parameter-group.tf    # RDS parameter group settings
+├── roles-and-policies.tf     # IAM roles and policies
+├── route53.tf               # DNS configuration
+├── s3.tf                    # S3 bucket configuration
+├── secrets.tf               # Secrets Manager configuration
+├── security_groups.tf       # Security group rules
+├── variables.tf             # Input variables
+├── vpc.tf                   # VPC configuration
+└── outputs.tf               # Output values
+```
 
 ## License
 
