@@ -29,6 +29,16 @@ resource "aws_iam_policy" "s3_access_policy" {
           "${aws_s3_bucket.private_bucket.arn}",
           "${aws_s3_bucket.private_bucket.arn}/*"
         ]
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "kms:Decrypt",
+          "kms:GenerateDataKey"
+        ],
+        Resource = [
+          aws_kms_key.s3_key.arn
+        ]
       }
     ]
   })
@@ -130,4 +140,40 @@ resource "aws_iam_role_policy_attachment" "asg_policy_attachment" {
 resource "aws_iam_role_policy_attachment" "asg_cloudwatch_attachment" {
   role       = aws_iam_role.asg_role.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchFullAccess"
+}
+
+# Add Secrets Manager access policy
+resource "aws_iam_policy" "secrets_access_policy" {
+  name        = "secrets-access-policy"
+  description = "Policy for EC2 to access Secrets Manager"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ],
+        Resource = [
+          aws_secretsmanager_secret.db_password.arn
+        ]
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "kms:Decrypt"
+        ],
+        Resource = [
+          aws_kms_key.secrets_key.arn
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "secrets_attach" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = aws_iam_policy.secrets_access_policy.arn
 }
