@@ -35,9 +35,41 @@ resource "aws_lb_target_group" "app_tg" {
   }
 }
 
+// Add HTTPS listener for dev environment
+resource "aws_lb_listener" "https" {
+  count             = var.aws_profile == "dev" ? 1 : 0
+  load_balancer_arn = aws_lb.app_lb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = aws_acm_certificate.cert[0].arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.app_tg.arn
+  }
+
+  depends_on = [aws_acm_certificate_validation.cert]
+}
+
+// Add HTTPS listener for demo environment
+resource "aws_lb_listener" "https_demo" {
+  count             = var.aws_profile == "demo" ? 1 : 0
+  load_balancer_arn = aws_lb.app_lb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = var.imported_cert_arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.app_tg.arn
+  }
+}
+
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.app_lb.arn
-  port              = 80
+  port              = "80"
   protocol          = "HTTP"
 
   default_action {

@@ -104,11 +104,11 @@ variable "db_username" {
   type        = string
 }
 
-variable "db_password" {
-  description = "RDS master password"
-  type        = string
-  sensitive   = true
-}
+# variable "db_password" {
+#   description = "RDS master password"
+#   type        = string
+#   sensitive   = true
+# }
 
 variable "db_name" {
   description = "Database name"
@@ -116,11 +116,11 @@ variable "db_name" {
   default     = "csye6225"
 }
 
-variable "my_ip_cidr" {
-  description = "Your IP address in CIDR notation for SSH access"
-  type        = string
-  default     = "0.0.0.0/0" # Replace with your actual IP for security
-}
+# variable "my_ip_cidr" {
+#   description = "Your IP address in CIDR notation for SSH access"
+#   type        = string
+#   default     = "0.0.0.0/0" # Replace with your actual IP for security
+# }
 
 # Add these variables to your existing variables.tf file
 
@@ -145,4 +145,10 @@ variable "asg_desired_capacity" {
   description = "Desired capacity of the Auto Scaling Group"
   type        = number
   default     = 3
+}
+
+variable "imported_cert_arn" {
+  description = "ARN of the imported SSL certificate for demo environment"
+  type        = string
+  default     = ""
 }

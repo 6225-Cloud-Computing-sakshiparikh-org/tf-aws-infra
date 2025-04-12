@@ -19,13 +19,27 @@ resource "aws_launch_template" "app_launch_template" {
     mkdir -p /opt/csye6225
     # Set permissions
     chown -R csye6225:csye6225 /opt/csye6225
+    # Install AWS CLI and jq if not already installed
+    if ! command -v aws &> /dev/null || ! command -v jq &> /dev/null; then
+      apt-get update
+      apt-get install -y awscli jq
+    fi
+    
+    # Retrieve database credentials from Secrets Manager
+    DB_SECRET=$(aws secretsmanager get-secret-value --secret-id ${aws_secretsmanager_secret.db_password.name} --region ${var.aws_region} --query SecretString --output text)
+    
+    # Parse JSON and extract values
+    DB_HOST=$(echo $DB_SECRET | jq -r '.host')
+    DB_USER=$(echo $DB_SECRET | jq -r '.username')
+    DB_PASSWORD=$(echo $DB_SECRET | jq -r '.password')
+    DB_NAME=$(echo $DB_SECRET | jq -r '.dbname')
     # Write environment variables
     cat > /opt/csye6225/.env <<EOL
     # Database Configuration
-    DB_HOST=${aws_db_instance.rds_instance.address}
-    DB_USER=${var.db_username}
-    DB_PASSWORD=${var.db_password}
-    DB_NAME=${var.db_name}
+    DB_HOST=$DB_HOST
+    DB_USER=$DB_USER
+    DB_PASSWORD=$DB_PASSWORD
+    DB_NAME=$DB_NAME
 
     # Application Configuration
     PORT=${var.app_port}
@@ -108,6 +122,8 @@ resource "aws_launch_template" "app_launch_template" {
       volume_size           = var.root_volume_size
       volume_type           = var.root_volume_type
       delete_on_termination = var.delete_on_termination
+      encrypted             = true
+      kms_key_id            = aws_kms_key.ec2_key.arn
     }
   }
 

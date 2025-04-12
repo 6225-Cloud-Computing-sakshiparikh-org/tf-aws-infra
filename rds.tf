@@ -10,7 +10,7 @@ resource "aws_db_instance" "rds_instance" {
   instance_class         = "db.t3.micro"
   allocated_storage      = 20
   username               = var.db_username
-  password               = var.db_password
+  password               = random_password.db_password.result
   db_name                = "csye6225"
   parameter_group_name   = aws_db_parameter_group.db_params.name
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
@@ -19,4 +19,5 @@ resource "aws_db_instance" "rds_instance" {
   skip_final_snapshot    = true
   multi_az               = false
   storage_encrypted      = true
+  kms_key_id             = aws_kms_key.rds_key.arn
 }
