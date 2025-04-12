@@ -6,7 +6,6 @@ resource "random_password" "db_password" {
 }
 
 # Store the password in Secrets Manager
-// Add this at the top of your secrets.tf file
 resource "random_id" "secret_suffix" {
   byte_length = 4
 }
